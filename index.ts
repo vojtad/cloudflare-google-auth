@@ -22,8 +22,7 @@ export interface GoogleKey {
 export default class GoogleOAuth {
     constructor(public googleKey: GoogleKey, public scopes: string[]) {}
 
-    public async getGoogleAuthToken(
-    ): Promise<string | undefined> {
+    public async getGoogleAuthToken({ sub: string }): Promise<string | undefined> {
         const { client_email: user, private_key: key } = this.googleKey
         const scope = this.formatScopes(this.scopes)
         const jwtHeader = this.objectToBase64url({ alg: 'RS256', typ: 'JWT' })
@@ -37,6 +36,7 @@ export default class GoogleOAuth {
                 aud: 'https://oauth2.googleapis.com/token',
                 exp: expirytime,
                 iat: assertiontime,
+                sub: sub || user,
             })
 
             const jwtUnsigned = `${jwtHeader}.${claimset}`
